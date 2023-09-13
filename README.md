@@ -1,34 +1,42 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GPTDocBot
 
-## Getting Started
+## Introduction
 
-First, run the development server:
+GPTDocBot is an AI-powered chatbot designed to interact with PDF documents. It leverages OpenAI's GPT models to understand the content of uploaded PDF files, divide them into sectors, and answer user queries related to the document's content.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## How It Works
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+GPTDocBot operates in several steps:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **PDF Upload**: Users can upload PDF documents via the frontend, which are then processed by the system.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+2. **Document Parsing**: The uploaded PDF is parsed using the LangChain library and pdf-parse. This step extracts the text content from the PDF file.
 
-## Learn More
+3. **Vectorization**: The extracted text content is converted into vectors and stored in Pinecone, a Vector Store.
 
-To learn more about Next.js, take a look at the following resources:
+4. **User Interaction**: Users can initiate a conversation with the chatbot, asking questions related to the document's content.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **AI-Powered Responses**: GPTDocBot utilizes OpenAI's GPT models to understand user queries, search for relevant document sectors in Pinecone, and generate responses based on the content.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Requirements and Technologies Used
 
-## Deploy on Vercel
+### Prerequisites
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Node.js 18
+- OpenAI API Key
+- Pinecone Vector Store API Key
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Technologies
+
+- Next.js
+- Tailwind CSS
+- TypeScript
+- LangChain
+- pdf-parse
+- Vercel's AI SDK
+- react-dropzone
+- @pinecone-database/pinecone
+
+## Disclaimer
+
+GPTDocBot is a project created for demonstration and educational purposes. While it showcases the capabilities of AI-powered chatbots and document processing, it may not be suitable for production use without further development and considerations for security, privacy, and scalability. Please use it responsibly and in accordance with relevant data privacy laws and regulations.
