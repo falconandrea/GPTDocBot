@@ -31,11 +31,12 @@ GPTDocBot operates in several steps:
 - Next.js
 - Tailwind CSS
 - TypeScript
-- LangChain
-- pdf-parse
-- Vercel's AI SDK
-- react-dropzone
-- @pinecone-database/pinecone
+- [LangChain](https://github.com/langchain-ai/langchainjs)
+- [pdf-parse](https://www.npmjs.com/package/pdf-parse)
+- [Vercel's AI SDK](https://github.com/vercel/ai)
+- [react-dropzone](https://www.npmjs.com/package/react-dropzone)
+- [@pinecone-database/pinecone](https://www.npmjs.com/package/@pinecone-database/pinecone)
+- [shadcn/ui](https://github.com/shadcn-ui/ui)
 
 ## Disclaimer
 
