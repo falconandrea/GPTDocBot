@@ -36,7 +36,6 @@ GPTDocBot operates in several steps:
 - [Vercel's AI SDK](https://github.com/vercel/ai)
 - [react-dropzone](https://www.npmjs.com/package/react-dropzone)
 - [@pinecone-database/pinecone](https://www.npmjs.com/package/@pinecone-database/pinecone)
-- [shadcn/ui](https://github.com/shadcn-ui/ui)
 
 ## Disclaimer
 
