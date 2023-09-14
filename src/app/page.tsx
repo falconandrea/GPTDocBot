@@ -1,13 +1,49 @@
 "use client";
 
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Dropzone from "./components/Dropzone";
 
+type message = {
+  text: string;
+  from: string;
+};
+
 export default function Home() {
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [chatMessages, setChatMessages] = useState<string[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [pdfFile, setPdfFile] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<message[]>([]);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [who, setWho] = useState<string>("user");
+
+  const handleSendMessage = async () => {
+    setChatMessages([
+      ...chatMessages,
+      {
+        text: newMessage,
+        from: "user",
+      },
+    ]);
+    setWho("bot");
+    setNewMessage(""); // Reset textarea
+  };
+
+  useEffect(() => {
+    const fetchBotReply = async () => {
+      // Wait 2 seconds
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Ask bot to reply
+      const botMessage = {
+        text: "Hello, how can I help you?",
+        from: "bot",
+      };
+      setChatMessages([...chatMessages, botMessage]);
+      setWho("user");
+    };
+
+    if (who === "bot") {
+      fetchBotReply();
+    }
+  }, [who]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -22,39 +58,86 @@ export default function Home() {
 
       <main className="container mx-auto p-4 max-w-2xl">
         <section className="bg-white p-4 rounded-lg shadow-md mb-4">
-          <h2 className="text-2xl font-semibold mb-2">How to Use GPTDocBot</h2>
-          <p>
-            Welcome to GPTDocBot, your AI-Powered PDF chatbot! Here's how to use
-            the application:
-          </p>
-          <ol className="list-decimal list-inside mt-2 ml-4">
-            <li>
-              <strong>Upload a PDF:</strong> Start by uploading a PDF document.
-              Simply drag and drop the PDF file into the designated area below.
-              Once the file is uploaded, GPTDocBot will process its contents.
-            </li>
-            <li>
-              <strong>Chat with the Document:</strong> After the PDF is
-              processed, a chat interface will appear. You can interact with the
-              document by asking questions or entering text in the chatbox.
-              GPTDocBot will use its AI capabilities to provide responses based
-              on the document's content.
-            </li>
-            <li>
-              <strong>Send Messages:</strong> To ask questions or provide input,
-              type your message in the text area at the bottom of the chat
-              interface and click the "Send" button. GPTDocBot will respond
-              accordingly.
-            </li>
-          </ol>
+          <div>
+            {pdfFile ? (
+              <div>
+                <div className="mb-4">
+                  {chatMessages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={
+                        message.from == "user"
+                          ? "flex justify-end"
+                          : "flex justify-start"
+                      }
+                    >
+                      <div className="bg-blue-200 p-2 rounded-lg inline-block mb-2">
+                        <p className="text-left">
+                          <small className="text-xs">{message.from}:</small>
+                        </p>
+                        {message.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex">
+                  <textarea
+                    className="w-full border border-gray-300 rounded-md p-2"
+                    placeholder="Ask something to the document..."
+                    value={newMessage}
+                    disabled={who == "bot"}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                  />
+                  <button
+                    disabled={who == "bot"}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2 cursor-pointer border-0"
+                    onClick={handleSendMessage}
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-2xl font-semibold mb-2">
+                  How to Use GPTDocBot
+                </h2>
+                <p>
+                  Welcome to GPTDocBot, your AI-Powered PDF chatbot! Here's how
+                  to use the application:
+                </p>
+                <ol className="list-decimal list-inside mt-2 ml-4">
+                  <li>
+                    <strong>Upload a PDF:</strong> Start by uploading a PDF
+                    document. Simply drag and drop the PDF file into the
+                    designated area below. Once the file is uploaded, GPTDocBot
+                    will process its contents.
+                  </li>
+                  <li>
+                    <strong>Chat with the Document:</strong> After the PDF is
+                    processed, a chat interface will appear. You can interact
+                    with the document by asking questions or entering text in
+                    the chatbox. GPTDocBot will use its AI capabilities to
+                    provide responses based on the document's content.
+                  </li>
+                  <li>
+                    <strong>Send Messages:</strong> To ask questions or provide
+                    input, type your message in the text area at the bottom of
+                    the chat interface and click the "Send" button. GPTDocBot
+                    will respond accordingly.
+                  </li>
+                </ol>
 
-          <p className="mt-4">
-            Start exploring your PDF documents with GPTDocBot and discover a new
-            way to interact with your content!
-          </p>
+                <p className="mt-4">
+                  Start exploring your PDF documents with GPTDocBot and discover
+                  a new way to interact with your content!
+                </p>
 
-          <h4 className="text-xl font-semibold mb-2 mt-8">Upload PDF</h4>
-          <div>{pdfFile ? file : <Dropzone />}</div>
+                <h4 className="text-xl font-semibold mb-2 mt-8">Upload PDF</h4>
+                <Dropzone setPdfFile={setPdfFile} />
+              </div>
+            )}
+          </div>
         </section>
       </main>
 

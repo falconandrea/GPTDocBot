@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { Pinecone, PineconeClient } from "@pinecone-database/pinecone";
+import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   if (file.type !== "application/pdf") {
     return NextResponse.json({ message: "Invalid file type" }, { status: 400 });
   }
-
+  /*
   // Use the PDFLoader to load the PDF and split it into smaller documents
   const pdfLoader = new PDFLoader(file);
   const splitDocuments = await pdfLoader.loadAndSplit();
@@ -33,6 +33,6 @@ export async function POST(request: Request) {
   await PineconeStore.fromDocuments(splitDocuments, new OpenAIEmbeddings(), {
     pineconeIndex,
   });
-
+*/
   return NextResponse.json({ message: "Ok" });
 }
