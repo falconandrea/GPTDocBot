@@ -14,10 +14,17 @@ export async function POST(request: Request) {
   if (file.type !== "application/pdf") {
     return NextResponse.json({ message: "Invalid file type" }, { status: 400 });
   }
-  /*
+
   // Use the PDFLoader to load the PDF and split it into smaller documents
   const pdfLoader = new PDFLoader(file);
   const splitDocuments = await pdfLoader.loadAndSplit();
+
+  // fetch splitDocuments and add metadata
+  for (const document of splitDocuments) {
+    document.metadata = {
+      name: file.name,
+    };
+  }
 
   // Initialize the Pinecone client
   const pineconeClient = new PineconeClient();
@@ -29,10 +36,22 @@ export async function POST(request: Request) {
     process.env.PINECONE_INDEX_NAME as string
   );
 
+  // Delete old values with the same name
+  // Not work with starter version
+  /*
+  await pineconeIndex._delete({
+    deleteRequest: {
+      filter: {
+        name: { $eq: file.name },
+      },
+    },
+  });
+  */
+
   // Use Langchain's integration with Pinecone to store the documents
   await PineconeStore.fromDocuments(splitDocuments, new OpenAIEmbeddings(), {
     pineconeIndex,
   });
-*/
+
   return NextResponse.json({ message: "Ok" });
 }

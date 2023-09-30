@@ -29,15 +29,31 @@ export default function Home() {
 
   useEffect(() => {
     const fetchBotReply = async () => {
-      // Wait 2 seconds
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      // Ask bot to reply
-      const botMessage = {
-        text: "Hello, how can I help you?",
-        from: "bot",
-      };
-      setChatMessages([...chatMessages, botMessage]);
-      setWho("user");
+      const message = chatMessages[chatMessages.length - 1].text;
+
+      if (message != "") {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          body: JSON.stringify({
+            message,
+          }),
+        });
+
+        let result = "";
+        if (!response.ok) {
+          result = "Error during sending message";
+        } else {
+          result = await response.text();
+        }
+
+        // Ask bot to reply
+        const botMessage = {
+          text: result,
+          from: "bot",
+        };
+        setChatMessages([...chatMessages, botMessage]);
+        setWho("user");
+      }
     };
 
     if (who === "bot") {
@@ -61,6 +77,22 @@ export default function Home() {
           <div>
             {pdfFile ? (
               <div>
+                <p className="mb-2">
+                  You are chatting with the file <strong>"{pdfFile}".</strong>
+                </p>
+                <p className="mb-4">
+                  Click{" "}
+                  <span
+                    className="underline cursor-pointer"
+                    onClick={() => {
+                      setPdfFile("");
+                      setChatMessages([]);
+                    }}
+                  >
+                    here
+                  </span>{" "}
+                  if you want to change file.
+                </p>
                 <div className="mb-4">
                   {chatMessages.map((message, index) => (
                     <div
@@ -71,7 +103,13 @@ export default function Home() {
                           : "flex justify-start"
                       }
                     >
-                      <div className="bg-blue-200 p-2 rounded-lg inline-block mb-2">
+                      <div
+                        className={
+                          message.from == "user"
+                            ? "bg-blue-200 p-2 rounded-lg inline-block mb-2"
+                            : "bg-green-200 p-2 rounded-lg inline-block mb-2"
+                        }
+                      >
                         <p className="text-left">
                           <small className="text-xs">{message.from}:</small>
                         </p>
@@ -81,11 +119,17 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="flex">
-                  <textarea
-                    className="w-full border border-gray-300 rounded-md p-2"
+                  <input
+                    type="text"
+                    className="w-full border border-blue-500 rounded-md p-2"
                     placeholder="Ask something to the document..."
                     value={newMessage}
                     disabled={who == "bot"}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSendMessage();
+                      }
+                    }}
                     onChange={(e) => setNewMessage(e.target.value)}
                   />
                   <button
