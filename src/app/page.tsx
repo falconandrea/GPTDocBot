@@ -3,6 +3,14 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import Dropzone from "./components/Dropzone";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/esm/Page/TextLayer.css";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.js",
+  import.meta.url
+).toString();
 
 type message = {
   text: string;
@@ -11,9 +19,16 @@ type message = {
 
 export default function Home() {
   const [pdfFile, setPdfFile] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [chatMessages, setChatMessages] = useState<message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const [who, setWho] = useState<string>("user");
+  const [numPages, setNumPages] = useState<number>();
+  const [pageNumber, setPageNumber] = useState<number>(1);
+
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
+    setNumPages(numPages);
+  }
 
   const handleSendMessage = async () => {
     setChatMessages([
@@ -72,73 +87,112 @@ export default function Home() {
         <p className="text-sm">An AI-Powered PDF Chatbot</p>
       </header>
 
-      <main className="container mx-auto p-4 max-w-2xl">
+      <main className="container mx-auto p-4">
         <section className="bg-white p-4 rounded-lg shadow-md mb-4">
           <div>
             {pdfFile ? (
-              <div>
-                <p className="mb-2">
-                  You are chatting with the file <strong>"{pdfFile}".</strong>
-                </p>
-                <p className="mb-4">
-                  Click{" "}
-                  <span
-                    className="underline cursor-pointer"
-                    onClick={() => {
-                      setPdfFile("");
-                      setChatMessages([]);
-                    }}
+              <div className="flex flex-col lg:flex-row">
+                <div className="w-full hidden md:block lg:w-1/2">
+                  <Document
+                    className="w-full"
+                    file={file}
+                    onLoadSuccess={onDocumentLoadSuccess}
                   >
-                    here
-                  </span>{" "}
-                  if you want to change file.
-                </p>
-                <div className="mb-4">
-                  {chatMessages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={
-                        message.from == "user"
-                          ? "flex justify-end"
-                          : "flex justify-start"
-                      }
+                    <Page
+                      className="w-full"
+                      pageNumber={pageNumber}
+                      renderAnnotationLayer={false}
+                    />
+                  </Document>
+                  <div className="flex align-middle justify-center">
+                    {pageNumber > 1 && (
+                      <span
+                        className="underline cursor-pointer"
+                        onClick={() => setPageNumber(pageNumber - 1)}
+                      >
+                        Previous
+                      </span>
+                    )}
+                    <p className="mx-8">
+                      Page {pageNumber} of {numPages}
+                    </p>
+                    {numPages && pageNumber < numPages && (
+                      <span
+                        className="underline cursor-pointer"
+                        onClick={() => setPageNumber(pageNumber + 1)}
+                      >
+                        Next
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="w-full px-0 lg:w-1/2 lg:px-4">
+                  <p className="mb-2">
+                    You are chatting with the file <strong>"{pdfFile}".</strong>
+                  </p>
+                  <p className="mb-4">
+                    Click{" "}
+                    <span
+                      className="underline cursor-pointer"
+                      onClick={() => {
+                        setPdfFile("");
+                        setFile(null);
+                        setChatMessages([]);
+                        setPageNumber(1);
+                        setNumPages(1);
+                      }}
                     >
+                      here
+                    </span>{" "}
+                    if you want to change file.
+                  </p>
+                  <div className="mb-4">
+                    {chatMessages.map((message, index) => (
                       <div
+                        key={index}
                         className={
                           message.from == "user"
-                            ? "bg-blue-200 p-2 rounded-lg inline-block mb-2"
-                            : "bg-green-200 p-2 rounded-lg inline-block mb-2"
+                            ? "flex justify-end"
+                            : "flex justify-start"
                         }
                       >
-                        <p className="text-left">
-                          <small className="text-xs">{message.from}:</small>
-                        </p>
-                        {message.text}
+                        <div
+                          className={
+                            message.from == "user"
+                              ? "bg-blue-200 p-2 rounded-lg inline-block mb-2"
+                              : "bg-green-200 p-2 rounded-lg inline-block mb-2"
+                          }
+                        >
+                          <p className="text-left">
+                            <small className="text-xs">{message.from}:</small>
+                          </p>
+                          {message.text}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex">
-                  <input
-                    type="text"
-                    className="w-full border border-blue-500 rounded-md p-2"
-                    placeholder="Ask something to the document..."
-                    value={newMessage}
-                    disabled={who == "bot"}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSendMessage();
-                      }
-                    }}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                  />
-                  <button
-                    disabled={who == "bot"}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2 cursor-pointer border-0"
-                    onClick={handleSendMessage}
-                  >
-                    Send
-                  </button>
+                    ))}
+                  </div>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      className="w-full border border-blue-500 rounded-md p-2"
+                      placeholder="Ask something to the document..."
+                      value={newMessage}
+                      disabled={who == "bot"}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSendMessage();
+                        }
+                      }}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                    />
+                    <button
+                      disabled={who == "bot"}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2 cursor-pointer border-0"
+                      onClick={handleSendMessage}
+                    >
+                      Send
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -178,7 +232,7 @@ export default function Home() {
                 </p>
 
                 <h4 className="text-xl font-semibold mb-2 mt-8">Upload PDF</h4>
-                <Dropzone setPdfFile={setPdfFile} />
+                <Dropzone setPdfFile={setPdfFile} setFile={setFile} />
               </div>
             )}
           </div>

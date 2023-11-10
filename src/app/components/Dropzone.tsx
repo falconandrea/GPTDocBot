@@ -3,8 +3,10 @@ import { useDropzone } from "react-dropzone";
 
 export default function Dropzone({
   setPdfFile,
+  setFile,
 }: {
   setPdfFile: (file: string | null) => void;
+  setFile: (file: File | null) => void;
 }) {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,6 +41,7 @@ export default function Dropzone({
     await response.json();
     setLoading(false);
     setPdfFile(file.name);
+    setFile(file);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
